@@ -6,22 +6,25 @@ body{
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	background-image:url("https://cdn.wallpapersafari.com/9/58/GEotw4.jpg");
+	background-image:url("background.jpg");
+	font-family: 'Lora', serif;
 }
 
 #graphGraphContainer{
 	margin: 0;
 	padding: 0;
-	height: 80vh;
-	width: 80vw;
-	display: flex;
-	justify-content: center;
-	align-items: center;
+	height: 90vh;
+	width: 90vw;
 	-webkit-box-shadow: 0px 0px 27px 13px rgba(0,0,0,0.75);
 	-moz-box-shadow: 0px 0px 27px 13px rgba(0,0,0,0.75);
 	box-shadow: 0px 0px 27px 13px rgba(0,0,0,0.75);
 	background-color: rgb(250,250,250);
 	border-radius: 5px;
+}
+
+#graphContainer{
+	position: absolute;
+	overflow: visible;
 }
 
 .axis path, .axis line {
@@ -34,28 +37,18 @@ body{
 	display: visible;
 }
 
-.tick > text {
-	font-size: 1rem;
-}
-
-text {
-	font-family: 'Lora', serif;
-}
-
 .detailsPopup{
 	fill: lightgrey!important;
 	rx: 8;
 	ry: 8;
 	filter: drop-shadow(16px 16px 10px black);
-	animation: appear 200ms;
 }
 
 #popupDetails{
 	border: 1px solid black;
-	font-size: 2rem;
+	font-size: 1em;
 	dx: 0.5em;
 	fill: black;
-	animation: appear 100ms;
 }	
 
 @keyframes appear {
@@ -65,4 +58,141 @@ text {
 	to{
 		opacity: 1;
 	}
+}
+
+/* Text styling */
+
+/*HTML Texts*/
+
+.textContainer{
+	position: absolute;
+	width: inherit;
+	text-align: center;
+	margin: 0;
+	height: 15vh;
+}
+
+/*Disappearance of the head- and sublines*/
+
+@media only screen and (max-height: 800px) {
+	#subSubSubLine {
+		visibility: hidden;
+	}
+
+	/* Show the tooltip text when you mouse over the tooltip container */
+	.tooltip:hover .tooltiptext {
+		visibility: visible;
+		overflow: visible;
+	}
+}
+
+@media only screen and (max-height: 670px){
+	#legendId {
+		visibility: hidden;
+	}
+}
+
+@media only screen and (max-height: 600px ) {
+	#subSubLine {
+		visibility: hidden;
+	}
+
+}
+
+@media only screen and (max-height: 450px) {
+	#subLine {
+		visibility: hidden;
+	}
+}
+
+@media only screen and (max-height: 395px) {
+	
+		.textContainer p {
+			visibility: hidden;
+		}
+
+		#xAxisText {
+			visibility: hidden;
+		}
+
+}
+
+@media only screen and (max-width: 732px){
+	#subSubSubLine {
+		visibility: hidden;
+	}
+
+	#subSubLine {
+		visibility: hidden;
+	}
+
+	#subLine{
+		visibility: hidden;
+	}
+	.tooltiptext {
+		height: 10vh!important;
+	}
+}
+
+@media only screen and (max-width: 1002px){
+		/* Show the tooltip text when you mouse over the tooltip container */
+		.tooltip:hover .tooltiptext {
+			visibility: visible;
+			overflow: visible;
+			width: 100%;
+		}
+}
+
+
+	
+.textContainer h1 {
+	margin: 1vh;
+	visibility: visible;
+}
+
+.textContainer p {
+	margin: 0;
+	visibility: visible;
+}
+
+
+/*End of disappearance of the head- and sublines*/
+
+/*SVG Texts*/
+
+#xAxisText{
+	font-size: 2em;
+}
+
+
+.tick > text {
+	font-size: 1.5em;
+}
+
+text {
+	font-family: 'Lora', serif;
+}
+
+/*tooltip styling (from w3cschools)*/
+
+/* Tooltip container */
+.tooltip {
+    position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+    border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
+}
+
+/* Tooltip text */
+.tooltip .tooltiptext {
+    visibility: hidden;
+    background-color: rgba(255,255,255,0.9);
+    text-align: center;
+    padding: 5px 0;
+	border-radius: 6px;
+	position: absolute;
+	top: 3em;
+	height: 4em;
+	width: 50%;
 }

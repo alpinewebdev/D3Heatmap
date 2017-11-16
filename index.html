@@ -31,18 +31,29 @@
 				const height = document.getElementById("graphGraphContainer").clientHeight;
 				const width = document.getElementById("graphGraphContainer").clientWidth;
 
+				const wW = window.innerWidth;
+				const wH = window.innerHeight;
+
 				const margin = {
-					top: 150,
-					bottom: 100,
-					right: 150,
-					left: 150
+					top: height / 6,
+					bottom: height / 8,
+					right: width / 15,
+					left: width / 10,
 				}
 
 				const graphHeight = height - margin.top - margin.bottom;
 				const graphWidth = width - margin.right - margin.left;
 
+				const chartSvg = d3.select('#graphContainer')
+
 				// Array as the source of the y-axis ticks
-				let yValues = ["January", "February", "March", "April", "May", "June", "Juli", "August", "September", "October", "November", "December"];
+				
+				let yValues = [];
+				if (window.innerWidth < 1000){
+					yValues = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+				} else {
+					yValues = ["January", "February", "March", "April", "May", "June", "Juli", "August", "September", "October", "November", "December"];
+				}
 
 				// Scale to get all the years evenly spaced out on the x-axis
 				let xScale = d3.scaleBand()
@@ -52,61 +63,90 @@
 				// Scale to get all the months evenly spaced out on the y-axis
 				let yScale = d3.scaleBand()
 					.range([0, graphHeight])
-					.paddingInner(0.005);
+					.paddingInner(0.01);
+				
+				let yAxis = d3.axisLeft()
+							    .scale(yScale);
 
-				let chart = d3.select("#graphContainer")
-					.attr("width", width)
-					.attr("height", height)
-					.append("g")
-					.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+			    const chartContainer = document.getElementById('graphGraphContainer');
+
+				let textContainer = chartContainer.appendChild(document.createElement('div'));
+				    textContainer.className = 'textContainer tooltip';
+				    textContainer.appendChild(document.createElement('h1')).innerHTML = 'Monthly Global Land-Surface Temperature';
+
+				let tooltip = textContainer.appendChild(document.createElement('p'));
+				    tooltip.className = 'tooltiptext';
+				    tooltip.innerHTML = `1753 - 2015.\
+					                     Temperatures are in Celsius and reported as difference to the Jan 1951-Dec 1980 average.\
+										 The average Jan 1951-Dec 1980 absolute temperature is T[°C]: 8.66 +/- 0.07.`;
+
+				let subLine = textContainer.appendChild(document.createElement('p'));
+				    subLine.id = 'subLine';
+				    subLine.innerHTML = '1753 - 2015';
+
+				let subSubLine = textContainer.appendChild(document.createElement('p'));
+				    subSubLine.id = 'subSubLine';
+				    subSubLine.innerHTML = "Temperatures are in Celsius and reported as difference to the Jan 1951-Dec 1980 average.";
+
+				let subSubSubLine = textContainer.appendChild(document.createElement('p'));
+				    subSubSubLine.id = 'subSubSubLine';
+				    subSubSubLine.innerHTML = "The average Jan 1951-Dec 1980 absolute temperature is T[°C]: 8.66 +/- 0.07.";
+
+				let chartInner = d3.select("#graphContainer")
+								     .attr('width', graphWidth)
+									 .attr('height', graphHeight)
+									 .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+									.append("g")
+									  .attr("width", graphWidth)
+									  .attr("height", graphHeight);
 
 				// Function that fires upon hovering over data field / temperature value
 				let showDetails = function (d) {
+						// The textfield is transformed to the field which is hovered
+						let textDetails = chartInner.append("g")
+													.attr("class", "detailsPopup")
+													.attr("id", "popup" + d.year + "" + d.month)
+													.attr("transform", "translate(" + (xScale(d.year) + 5) + "," + (yScale(yValues[d.month - 1])) + ")")
+													.attr("width", "10em")
+													.attr("height", "5em");
 
-					// The textfield is transformed to the field which is hovered
-					let textDetails = chart.append("g")
-						.attr("class", "detailsPopup")
-						.attr("id", "popup" + d.year + "" + d.month)
-						.attr("transform", "translate(" + xScale(d.year) + "," + (yScale(yValues[d.month - 1])) + ")")
-						.attr("width", "10rem")
-						.attr("height", "5rem");
-
-					textDetails.append("rect")
-						.attr("width", "10rem")
-						.attr("height", "4.3rem");
+						textDetails.append("rect")
+							.attr("width", "10em")
+							.attr("height", "4.3em");
 
 
-					let text = textDetails.append("text")
-						.attr("id", "popupDetails")
-						.attr("dy", "1rem");
+						let text = textDetails.append("text")
+							.attr("id", "popupDetails")
+							.attr("dy", "1em");
 
-					// All the relevant data is added to the tooltip / popup
+						// All the relevant data is added to the tooltip / popup
 
-					text.append("tspan")
-						.attr("x", 10)
-						.attr("dy", "1.5rem")
-						.attr("font-size", "1rem")
-						.attr("fill", "black")
-						.text(yValues[d.month - 1] + " - " + d.year);
+						text.append("tspan")
+							.attr("x", 10)
+							.attr("dy", "1.5em")
+							.attr("font-size", "1em")
+							.attr("fill", "black")
+							.text(yValues[d.month - 1] + " - " + d.year);
 
-					text.append("tspan")
-						.attr("x", 10)
-						.attr("dy", "1rem")
-						.attr("font-size", "1rem")
-						.attr("fill", "black")
-						.text("Avg. Temp.: " + (8.66 + d.variance).toFixed(2) + " °C");
+						text.append("tspan")
+							.attr("x", 10)
+							.attr("dy", "1em")
+							.attr("font-size", "1em")
+							.attr("fill", "black")
+							.text("Avg. Temp.: " + (8.66 + d.variance).toFixed(2) + " °C");
 
-					text.append("tspan")
-						.attr("x", 10)
-						.attr("dy", "1rem")
-						.attr("font-size", "1rem")
-						.attr("fill", "black")
-						.text("Var.: " + d.variance.toFixed(2) + " °C");
+						text.append("tspan")
+							.attr("x", 10)
+							.attr("dy", "1em")
+							.attr("font-size", "1em")
+							.attr("fill", "black")
+							.text("Var.: " + d.variance.toFixed(2) + " °C");
+					
 
 				};
 
 				let hideDetails = function (d) {
-					document.getElementById("popup" + d.year + "" + d.month).remove();
+						document.getElementById("popup" + d.year + "" + d.month).remove();
 				};
 
 				// Loads the data
@@ -127,13 +167,6 @@
 						if (d.month % 7 === 0) xDomainArr.push(d.year);
 					});
 
-					// Creates the domain of the y-axis, and adds each month only one time
-					let yDomainArr = [];
-					data.monthlyVariance.some(function (d, i) {
-						if (i > 11 && d.month < 2) return true;
-						yDomainArr.push(yValues[i]);
-					});
-
 					// Creates a scale for the variance, to scale a color with the variance
 					let variance = [];
 					data.monthlyVariance.forEach(function (d) {
@@ -147,91 +180,60 @@
 						.domain([-6.976, d3.max(variance, function (d) { return d; })]);
 
 					xScale.domain(xDomainArr);
-					yScale.domain(yDomainArr);
+					yScale.domain(yValues);
 
-					// Add x- and y-axes
+					// Add x-axis
 
-					let xAxis = d3.axisBottom()
-						.scale(xScale)
-						.tickValues(xScale.domain().filter(function (d, i) {
-							if (d % 15 === 0) return d;
-						}));
-
-					let yAxis = d3.axisLeft()
-						.scale(yScale);
+					let xAxis = d3.axisBottom().scale(xScale);
+					const tickValuesX = window.innerWidth > 850 ? 15 : 30;
+					xAxis.tickValues(xScale.domain().filter(function (d, i) {
+						if (d % tickValuesX === 0) return d;
+					}));
 
 					// Add the x-axis and a text "year"
-					chart.append("g")
-						.attr("transform", "translate(0 ," + (graphHeight) + ")")
-						.attr("class", "x axis")
-						.attr("font-size", "1.5rem")
-						.attr("height", "100")
-						.call(xAxis)
-						.append("text")
-						.attr("id", "xAxisText")
-						.attr("fill", "black")
-						.attr("font-size", "1.5rem")
-						.attr("transform", "translate(" + (graphWidth / 2) + "," + 55 + ")")
-						.text("Year");
+					chartSvg.append("g")
+							.attr("transform", "translate(0 ," + (graphHeight) + ")")
+							.attr("class", "x axis")
+							.attr("font-size", "1.5em")
+							.attr("height", "100")
+							.call(xAxis)
+							.append("text")
+							.attr("id", "xAxisText")
+							.attr("fill", "black")
+							.attr("transform", "translate(" + (graphWidth / 2) + "," + 40 + ")")
+							.text("Year")
+							.attr('id', 'xAxisText');
 
 					// Add the y-axis
-					chart.append("g")
-						.attr("transform", "translate(0, 0 )")
-						.attr("class", "y axis")
-						.call(yAxis);
+					chartSvg.append("g")
+							.attr("transform", "translate(0, 0 )")
+							.attr("class", "y axis")
+							.call(yAxis);
 
 					// Add the actual temperature values with colors and sizes
-					chart.selectAll(".bar")
-						.data(data.monthlyVariance)
-						.enter().append("rect")
-						.attr("fill", function (d) { return "rgb(" + Math.floor(colorScale(d.variance)) + "," + (255 - Math.floor(colorScale(d.variance))) + "," + (255 - Math.floor(colorScale(d.variance))) + ")"; })
-						.attr("id", function (d) { return "id" + d.year + "" + d.month; })
-						.attr("x", function (d) { return xScale(d.year); })
-						.attr("y", function (d) { return yScale(yValues[d.month - 1]); })
-						.attr("width", function (d) { return xScale.bandwidth(); })
-						.attr("height", function (d) { return yScale.bandwidth(); })
-						.on("mouseenter", showDetails)
-						.on("mouseleave", hideDetails);
-
-					// Some additional texting...
-
-					chart.append("text")
-						.attr("x", graphWidth / 2)
-						.attr("y", -80)
-						.attr("text-anchor", "middle")
-						.attr("font-size", "3em")
-						.text("Monthly Global Land-Surface Temperature");
-
-					chart.append("text")
-						.attr("x", graphWidth / 2)
-						.attr("y", -50)
-						.attr("text-anchor", "middle")
-						.attr("font-size", "2rem")
-						.text("1753 - 2015");
-
-					chart.append("text")
-						.attr("x", graphWidth / 2)
-						.attr("y", -25)
-						.attr("text-anchor", "middle")
-						.attr("font-size", "1rem")
-						.text("Temperatures are in Celsius and reported as difference to the Jan 1951-Dec 1980 average.");
-					chart.append("text")
-						.attr("x", graphWidth / 2)
-						.attr("y", -10)
-						.attr("text-anchor", "middle")
-						.attr("font-size", "1rem")
-						.text("The average Jan 1951-Dec 1980 absolute temperature is T[℃]: 8.66 +/- 0.07")
+					chartInner.selectAll(".bar")
+								.data(data.monthlyVariance)
+								.enter().append("rect")
+								.attr("fill", function (d) { return "rgb(" + Math.floor(colorScale(d.variance)) + "," + (255 - Math.floor(colorScale(d.variance))) + "," + (255 - Math.floor(colorScale(d.variance))) + ")"; })
+								.attr("id", function (d) { return "id" + d.year + "" + d.month; })
+								.attr("x", function (d) { return xScale(d.year); })
+								.attr("y", function (d) { return yScale(yValues[d.month - 1]); })
+								.attr("width", function (d) { return xScale.bandwidth(); })
+								.attr("height", function (d) { return yScale.bandwidth(); })
+								.on("mouseover", showDetails)
+								.on("mouseleave", hideDetails);
 
 					// Source values for a legend for the colors of the different variances
 					let legendValues = [{ val: -7, index: 1 },
-					{ val: -3, index: 2 },
-					{ val: 0, index: 3 },
-					{ val: 3, index: 4 },
-					{ val: 5, index: 5 }];
+										{ val: -3, index: 2 },
+										{ val: 0, index: 3 },
+										{ val: 3, index: 4 },
+										{ val: 5, index: 5 }];
 					
 					// Create and append legend
-					let legend = chart.append("g")
-						.attr("transform", "translate(" + (graphWidth - (graphWidth / 13 * 6)) + "," + (graphHeight + 40) + ")");
+					let legend = chartSvg.append("g")
+						                   .attr("transform", "translate(" + (graphWidth - (graphWidth / 13 * 6)) + "," + (graphHeight + 25) + ")")
+										   .attr('id', 'legendId');
 
 					legend.selectAll(".legendColors")
 						.data(legendValues)
@@ -241,7 +243,7 @@
 						.attr("x", function (d) { return (d.index * graphWidth / 13) })
 						.attr("y", 0)
 						.attr("width", (graphWidth / 13))
-						.attr("height", "1.2rem");
+						.attr("height", "1.2em");
 
 					// Some text / description for the legend
 					legendValues.forEach(function (d, i) {
